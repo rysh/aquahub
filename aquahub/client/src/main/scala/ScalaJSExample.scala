@@ -1,5 +1,3 @@
-package com.rysh.aquahub
-
 import com.rysh.aquahub.shared.SharedMessages
 import org.scalajs.dom
 

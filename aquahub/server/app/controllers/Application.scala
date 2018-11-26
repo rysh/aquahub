@@ -1,8 +1,7 @@
-package com.rysh.aquahub.controllers
-
-import javax.inject._
+package controllers
 
 import com.rysh.aquahub.shared.SharedMessages
+import javax.inject._
 import play.api.mvc._
 
 @Singleton

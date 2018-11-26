@@ -8,6 +8,7 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
   compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
   libraryDependencies ++= Seq(
     "com.vmunier" %% "scalajs-scripts" % "1.1.2",
+    "com.rometools" % "rome" % "1.8.1",
     guice,
     specs2 % Test
   ),
@@ -19,7 +20,7 @@ lazy val server = (project in file("server")).settings(commonSettings).settings(
 lazy val client = (project in file("client")).settings(commonSettings).settings(
   scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Seq(
-    "org.scala-js" %%% "scalajs-dom" % "0.9.5"
+    "org.scala-js" %%% "scalajs-dom" % "0.9.6"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSWeb).
   dependsOn(sharedJs)
@@ -32,7 +33,7 @@ lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
 
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.5",
+  scalaVersion := "2.12.6",
   organization := "com.rysh"
 )
 

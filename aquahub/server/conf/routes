@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET        /                             com.rysh.aquahub.controllers.Application.index
+GET        /                             controllers.Application.index
 
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
