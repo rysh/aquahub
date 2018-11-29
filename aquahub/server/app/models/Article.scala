@@ -3,21 +3,13 @@ package models
 import scalikejdbc._
 import java.time.{ZonedDateTime}
 
-case class Article(
-  id: Long,
-  articleId: String,
-  url: String,
-  title: String,
-  body: String,
-  publishDatetime: ZonedDateTime,
-  forceUpdate: Boolean) {
+case class Article(id: Long, articleId: String, url: String, title: String, body: String, publishDatetime: ZonedDateTime, forceUpdate: Boolean) {
 
   def save()(implicit session: DBSession = Article.autoSession): Article = Article.save(this)(session)
 
   def destroy()(implicit session: DBSession = Article.autoSession): Int = Article.destroy(this)(session)
 
 }
-
 
 object Article extends SQLSyntaxSupport[Article] {
 
@@ -74,43 +66,37 @@ object Article extends SQLSyntaxSupport[Article] {
     }.map(_.long(1)).single.apply().get
   }
 
-  def create(
-    articleId: String,
-    url: String,
-    title: String,
-    body: String,
-    publishDatetime: ZonedDateTime,
-    forceUpdate: Boolean)(implicit session: DBSession = autoSession): Article = {
+  def create(articleId: String, url: String, title: String, body: String, publishDatetime: ZonedDateTime, forceUpdate: Boolean)(
+      implicit session: DBSession = autoSession
+  ): Article = {
     val generatedKey = withSQL {
-      insert.into(Article).namedValues(
-        column.articleId -> articleId,
-        column.url -> url,
-        column.title -> title,
-        column.body -> body,
-        column.publishDatetime -> publishDatetime,
-        column.forceUpdate -> forceUpdate
-      )
+      insert
+        .into(Article)
+        .namedValues(
+          column.articleId       -> articleId,
+          column.url             -> url,
+          column.title           -> title,
+          column.body            -> body,
+          column.publishDatetime -> publishDatetime,
+          column.forceUpdate     -> forceUpdate
+        )
     }.updateAndReturnGeneratedKey.apply()
 
-    Article(
-      id = generatedKey,
-      articleId = articleId,
-      url = url,
-      title = title,
-      body = body,
-      publishDatetime = publishDatetime,
-      forceUpdate = forceUpdate)
+    Article(id = generatedKey, articleId = articleId, url = url, title = title, body = body, publishDatetime = publishDatetime, forceUpdate = forceUpdate)
   }
 
   def batchInsert(entities: collection.Seq[Article])(implicit session: DBSession = autoSession): List[Int] = {
-    val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(entity =>
-      Seq(
-        'articleId -> entity.articleId,
-        'url -> entity.url,
-        'title -> entity.title,
-        'body -> entity.body,
-        'publishDatetime -> entity.publishDatetime,
-        'forceUpdate -> entity.forceUpdate))
+    val params: collection.Seq[Seq[(Symbol, Any)]] = entities.map(
+      entity =>
+        Seq(
+          'articleId       -> entity.articleId,
+          'url             -> entity.url,
+          'title           -> entity.title,
+          'body            -> entity.body,
+          'publishDatetime -> entity.publishDatetime,
+          'forceUpdate     -> entity.forceUpdate
+      )
+    )
     SQL("""insert into article(
       article_id,
       url,
@@ -130,15 +116,18 @@ object Article extends SQLSyntaxSupport[Article] {
 
   def save(entity: Article)(implicit session: DBSession = autoSession): Article = {
     withSQL {
-      update(Article).set(
-        column.id -> entity.id,
-        column.articleId -> entity.articleId,
-        column.url -> entity.url,
-        column.title -> entity.title,
-        column.body -> entity.body,
-        column.publishDatetime -> entity.publishDatetime,
-        column.forceUpdate -> entity.forceUpdate
-      ).where.eq(column.id, entity.id)
+      update(Article)
+        .set(
+          column.id              -> entity.id,
+          column.articleId       -> entity.articleId,
+          column.url             -> entity.url,
+          column.title           -> entity.title,
+          column.body            -> entity.body,
+          column.publishDatetime -> entity.publishDatetime,
+          column.forceUpdate     -> entity.forceUpdate
+        )
+        .where
+        .eq(column.id, entity.id)
     }.update.apply()
     entity
   }
