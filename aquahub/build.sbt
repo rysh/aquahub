@@ -32,7 +32,7 @@ lazy val client = (project in file("client"))
       "org.scala-js" %%% "scalajs-dom" % "0.9.6"
     )
   )
-  .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
+  .enablePlugins(ScalaJSPlugin, ScalaJSWeb, ScalikejdbcPlugin)
   .dependsOn(sharedJs)
 
 lazy val shared = CrossPlugin.autoImport
