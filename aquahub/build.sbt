@@ -14,14 +14,15 @@ lazy val server = (project in file("server"))
       "org.scalikejdbc" %% "scalikejdbc-config"           % "3.3.1",
       "org.scalikejdbc" %% "scalikejdbc-test"             % "3.3.1" % "test",
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % "2.6.0-scalikejdbc-3.3",
-      "mysql"           % "mysql-connector-java"          % "8.0.13",
+      "mysql"           % "mysql-connector-java"          % "5.1.47",
+      "ch.qos.logback"  % "logback-classic"               % "1.2.3",
       guice,
       specs2 % Test
     ),
     // Compile the project before generating Eclipse files, so that generated .scala or .class files for views and routes are present
     EclipseKeys.preTasks := Seq(compile in Compile)
   )
-  .enablePlugins(PlayScala)
+  .enablePlugins(PlayScala, ScalikejdbcPlugin)
   .dependsOn(sharedJvm)
 
 lazy val client = (project in file("client"))
@@ -32,7 +33,7 @@ lazy val client = (project in file("client"))
       "org.scala-js" %%% "scalajs-dom" % "0.9.6"
     )
   )
-  .enablePlugins(ScalaJSPlugin, ScalaJSWeb, ScalikejdbcPlugin)
+  .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
   .dependsOn(sharedJs)
 
 lazy val shared = CrossPlugin.autoImport

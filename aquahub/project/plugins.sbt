@@ -20,6 +20,5 @@ addSbtPlugin("com.typesafe.sbt"          % "sbt-digest"                % "1.1.4"
 addSbtPlugin("com.typesafe.sbteclipse"   % "sbteclipse-plugin"         % "5.2.4")
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.15")
 
-libraryDependencies += "mysql" % "mysql-connector-java"  % "8.0.13"
-
+libraryDependencies += "mysql" % "mysql-connector-java"  % "5.1.47"
 addSbtPlugin("org.scalikejdbc" %% "scalikejdbc-mapper-generator" % "3.3.1")
