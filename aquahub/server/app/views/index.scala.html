@@ -1,8 +1,13 @@
-@(message: String)
+@(message: String, articles: Seq[Article])
 
 @main("AquaHub") {
-<h2>アクアリストの情報コミュニティ</h2>
+<h3>AquaHub</h3>
+<h5>アクアリストの情報コミュニティ</h5>
 <ul>
+
+  @for(article <- articles) {
+    <li><a href="/article/@article.articleId"><span>@article.title</span></a></li>
+  }
   <li>Play shouts out: <em>@message</em></li>
   <li>Scala.js shouts out: <em id="scalajsShoutOut"></em></li>
 </ul>
