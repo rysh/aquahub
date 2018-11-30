@@ -22,7 +22,7 @@ exports.helloGET = async (req, res) => {
   // });
   // c.connect();
 
-  var urls = ['http://aquaforest.tokyo/2018/11/26/post-36961/']
+  var urls = ['http://aquaforest.tokyo/2018/11/30/post-37050/']
 
   for(let url of urls) {
     var sha256 = crypto.createHash('sha256');
@@ -36,9 +36,16 @@ exports.helloGET = async (req, res) => {
     await page.goto(url);
     await page.waitForSelector('div.entry-content');
     scrapingData = await page.evaluate(() => {
+        var imgTag = document.querySelector("div.entry-content img")
+        var src = "";
+        if (imgTag != null) {
+          console.log(imgTag)
+          src = imgTag.src
+        }
         return {
           title: document.querySelector("title").innerText,
-          body: document.querySelector("div.entry-content").innerHtml
+          body: document.querySelector("div.entry-content").innerText,
+          img: src
         };
     });
   }
