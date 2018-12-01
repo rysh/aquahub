@@ -1,6 +1,6 @@
 const puppeteer = require('puppeteer');
 const crypto = require("crypto");
-var wget = require('node-wget');
+var wget = require('node-wget-promise');
 const { Storage } = require('@google-cloud/storage');
 const mysql = require("promise-mysql");
 
@@ -65,7 +65,7 @@ const mysql = require("promise-mysql");
     })
     if (item.img != null) {
         let fileName = createFileName(item, hash)
-        wget({url: item.img, dest: fileName}, () => {
+        await wget(item.img, {output: fileName}).then(metadata => {
           upload(fileName)
         });
     }

@@ -6,8 +6,7 @@
   "dependencies": {
     "@google-cloud/storage": "^2.3.1",
     "crypto": "^1.0.1",
-    "mysql": "^2.16.0",
-    "node-wget": "^0.4.3",
+    "node-wget-promise": "^0.1.6",
     "promise-mysql": "^3.3.1",
     "puppeteer": "^1.10.0"
   },
