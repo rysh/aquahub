@@ -25,8 +25,6 @@ const mysql = require("promise-mysql");
 
   await page.waitForSelector('div.excerpt_div > h4 > a');
   var items = await page.mainFrame().$$("div.excerpt_div > h4 > a")
-  // var i = 0
-  // var urls = ['http://aquaforest.tokyo/2018/11/30/post-37050/']
   var urls = []
   for(let item of items) {
 
@@ -93,7 +91,6 @@ function upload(file) {
       cacheControl: 'public, max-age=31536000',
     },
   });
-  //https://storage.cloud.google.com/aquahub-image/c1249d26837990fc9a2d7404426fb9ba4fc3a40468dec8008b4a66a8afbfc60d.jpg
 }
 function createImageUrl(item,hash) {
   if (item.img == null) {

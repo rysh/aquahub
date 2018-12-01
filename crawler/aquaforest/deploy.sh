@@ -1,6 +1,9 @@
 #!/bin/bash
-gcloud beta functions deploy helloGET \
+cp ~/src/aquahub-private/crawler_env.yml ./
+gcloud beta functions deploy crawlAquaforest \
   --trigger-http \
   --runtime=nodejs8 \
   --timeout=180s \
-  --memory=1024MB
+  --memory=1024MB \
+  --region=asia-northeast1 \
+  --env-vars-file=crawler_env.yml 
