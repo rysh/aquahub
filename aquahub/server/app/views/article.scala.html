@@ -3,8 +3,11 @@
 @main("AquaHub") {
 <h5>AquaHub</h5>
 <ul>
-
-  <li><a href="/article/@article.articleId"><span>@article.title</span></a></li>
-  <li><span>@article.body</span></li>
+  @if(article.imageUrl.isDefined) {
+    <li><a href="@article.url"><img src="@article.imageUrl.get" alt="@article.body" title="@article.body"></a></li>
+  }
+  <li><a href="@article.url"><span>@article.title</span></a></li>
+  <li><a href="@article.url"><span>記事を読む</span></a></li>
+  <li><span>コメント</span></li>
 </ul>
 }

@@ -3,7 +3,7 @@ package models
 import scalikejdbc._
 import java.time.{ZonedDateTime}
 
-case class Article(id: Long, articleId: String, url: String, title: String, body: String, publishDatetime: ZonedDateTime, forceUpdate: Boolean) {
+case class Article(id: Long, articleId: String, url: String, imageUrl: Option[String] = None, title: String, body: String, publishDatetime: ZonedDateTime, forceUpdate: Boolean) {
 
   def save()(implicit session: DBSession = Article.autoSession): Article = Article.save(this)(session)
 
@@ -17,13 +17,14 @@ object Article extends SQLSyntaxSupport[Article] {
 
   override val tableName = "article"
 
-  override val columns = Seq("id", "article_id", "url", "title", "body", "publish_datetime", "force_update")
+  override val columns = Seq("id", "article_id", "url", "image_url", "title", "body", "publish_datetime", "force_update")
 
   def apply(a: SyntaxProvider[Article])(rs: WrappedResultSet): Article = apply(a.resultName)(rs)
   def apply(a: ResultName[Article])(rs: WrappedResultSet): Article = new Article(
     id = rs.get(a.id),
     articleId = rs.get(a.articleId),
     url = rs.get(a.url),
+    imageUrl = rs.get(a.imageUrl),
     title = rs.get(a.title),
     body = rs.get(a.body),
     publishDatetime = rs.get(a.publishDatetime),
@@ -66,7 +67,7 @@ object Article extends SQLSyntaxSupport[Article] {
     }.map(_.long(1)).single.apply().get
   }
 
-  def create(articleId: String, url: String, title: String, body: String, publishDatetime: ZonedDateTime, forceUpdate: Boolean)(
+  def create(articleId: String, url: String, imageUrl: Option[String] = None, title: String, body: String, publishDatetime: ZonedDateTime, forceUpdate: Boolean)(
       implicit session: DBSession = autoSession
   ): Article = {
     val generatedKey = withSQL {
@@ -75,6 +76,7 @@ object Article extends SQLSyntaxSupport[Article] {
         .namedValues(
           column.articleId       -> articleId,
           column.url             -> url,
+          column.imageUrl        -> imageUrl,
           column.title           -> title,
           column.body            -> body,
           column.publishDatetime -> publishDatetime,
@@ -82,7 +84,7 @@ object Article extends SQLSyntaxSupport[Article] {
         )
     }.updateAndReturnGeneratedKey.apply()
 
-    Article(id = generatedKey, articleId = articleId, url = url, title = title, body = body, publishDatetime = publishDatetime, forceUpdate = forceUpdate)
+    Article(id = generatedKey, articleId = articleId, url = url, imageUrl = imageUrl, title = title, body = body, publishDatetime = publishDatetime, forceUpdate = forceUpdate)
   }
 
   def batchInsert(entities: collection.Seq[Article])(implicit session: DBSession = autoSession): List[Int] = {
@@ -91,6 +93,7 @@ object Article extends SQLSyntaxSupport[Article] {
         Seq(
           'articleId       -> entity.articleId,
           'url             -> entity.url,
+          'imageUrl        -> entity.imageUrl,
           'title           -> entity.title,
           'body            -> entity.body,
           'publishDatetime -> entity.publishDatetime,
@@ -100,6 +103,7 @@ object Article extends SQLSyntaxSupport[Article] {
     SQL("""insert into article(
       article_id,
       url,
+      image_url,
       title,
       body,
       publish_datetime,
@@ -107,6 +111,7 @@ object Article extends SQLSyntaxSupport[Article] {
     ) values (
       {articleId},
       {url},
+      {imageUrl},
       {title},
       {body},
       {publishDatetime},
@@ -121,6 +126,7 @@ object Article extends SQLSyntaxSupport[Article] {
           column.id              -> entity.id,
           column.articleId       -> entity.articleId,
           column.url             -> entity.url,
+          column.imageUrl        -> entity.imageUrl,
           column.title           -> entity.title,
           column.body            -> entity.body,
           column.publishDatetime -> entity.publishDatetime,

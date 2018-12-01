@@ -4,6 +4,7 @@ import com.rysh.aquahub.shared.SharedMessages
 import javax.inject._
 import models.Article
 import play.api.mvc._
+import repository.ArticleRepository
 import scalikejdbc._
 
 @Singleton
@@ -11,8 +12,7 @@ class Application @Inject()(cc: ControllerComponents) extends AbstractController
 
   def index = Action {
     implicit val session: AutoSession.type = AutoSession
-    val articles: Seq[Article]             = Article.findAll()
-    println(articles)
+    val articles: Seq[Article]             = ArticleRepository.list()
     Ok(views.html.index(SharedMessages.itWorks, articles))
   }
 
