@@ -35,9 +35,8 @@ const { Storage } = require('@google-cloud/storage');
     var item = await page.evaluate(function() {
 
       var imgTag = document.querySelector("div.entry-content img")
-      var src = "";
+      var src = null;
       if (imgTag != null) {
-        console.log(imgTag)
         src = imgTag.src
       }
       return {
@@ -46,16 +45,11 @@ const { Storage } = require('@google-cloud/storage');
           img: src
         };
     })
-    console.log(item.img)
     if (item.img != null) {
-        let result = item.img.match(/([^\/.]+)/g);
-        let fileName = hash + "." + result[result.length - 1]
-        console.log(fileName)
+        let fileName = createFileName(item, hash)
         wget({url: item.img, dest: fileName}, () => {
-          upload(fileName, hash)
+          upload(fileName)
         });
-    } else {
-      console.log("hoge")
     }
     console.log(item)
   }
@@ -68,12 +62,12 @@ function createHash(url) {
   sha256.update(url)
   return sha256.digest('hex');
 }
-function upload(file, hash) {
-
+function createFileName(item, hash) {
+  let result = item.img.match(/([^\/.]+)/g);
+  return hash + "." + result[result.length - 1]
+}
+function upload(file) {
   const storage = new Storage();
-  const bucket = storage.bucket("aquahub-image");
-  const blob = bucket.file(file);
-
   storage.bucket("aquahub-image").upload(file, {
     gzip: true,
     metadata: {
