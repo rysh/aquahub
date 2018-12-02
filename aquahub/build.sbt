@@ -16,6 +16,8 @@ lazy val server = (project in file("server"))
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % "2.6.0-scalikejdbc-3.3",
       "mysql"           % "mysql-connector-java"          % "5.1.47",
       "ch.qos.logback"  % "logback-classic"               % "1.2.3",
+      "org.scalatest"   %% "scalatest"                    % "3.0.5" % Test,
+      "org.scalacheck"  %% "scalacheck"                   % "1.14.0" % Test,
       guice,
       specs2 % Test
     ),
@@ -30,7 +32,9 @@ lazy val client = (project in file("client"))
   .settings(
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "0.9.6"
+      "org.scala-js"   %%% "scalajs-dom" % "0.9.6",
+      "org.scalatest"  %% "scalatest"    % "3.0.5" % Test,
+      "org.scalacheck" %% "scalacheck"   % "1.14.0" % Test
     )
   )
   .enablePlugins(ScalaJSPlugin, ScalaJSWeb)

@@ -2,12 +2,18 @@
 
 @main("AquaHub") {
 <h5>AquaHub</h5>
-<ul>
-  @if(article.imageUrl.isDefined) {
-    <li><a href="@article.url"><img src="@article.imageUrl.get" alt="@article.body" title="@article.body"></a></li>
-  }
-  <li><a href="@article.url"><span>@article.title</span></a></li>
-  <li><a href="@article.url"><span>記事を読む</span></a></li>
-  <li><span>コメント</span></li>
-</ul>
+<div class="container" style="overflow: hidden;">
+
+  <div class="row">
+    <div id="main" class="nine columns">
+        @if(article.imageUrl.isDefined) {
+            <div id="image_container"><a href="@article.url"><img id=top_image src="@article.imageUrl.get" alt="@article.body" title="@article.body"></a></div>
+        }
+        <div><a href="@article.url"><span>@article.title</span></a></div>
+        <div><a href="@article.url"><span>記事を読む</span></a></div>
+        <div><span>コメント</span></div>
+    </div>
+    <div id="side" class="three columns">Three</div>
+  </div>
+</div>
 }
