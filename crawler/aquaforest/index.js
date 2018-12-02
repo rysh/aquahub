@@ -69,7 +69,7 @@ exports.crawlAquaforest = async (req, res) => {
     })
     if (item.img != null) {
         let fileName = createFileName(item, hash)
-        await wget(item.img, {output: fileName}).then(metadata => {
+        await wget(item.img, {output: "/tmp/" + fileName}).then(metadata => {
           upload(fileName)
         });
     }
@@ -92,7 +92,7 @@ function createFileName(item, hash) {
 }
 function upload(file) {
   const storage = new Storage();
-  storage.bucket("aquahub-image").upload(file, {
+  storage.bucket("aquahub-image").upload("/tmp/" + file, {
     gzip: true,
     metadata: {
       cacheControl: 'public, max-age=31536000',
