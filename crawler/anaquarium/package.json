@@ -1,0 +1,14 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "dependencies": {
+    "@google-cloud/storage": "^2.3.1",
+    "crypto": "^1.0.1",
+    "express": "^4.16.4",
+    "node-wget-promise": "^0.1.6",
+    "promise-mysql": "^3.3.1",
+    "puppeteer": "^1.10.0"
+  }
+}
