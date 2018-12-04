@@ -1,6 +1,5 @@
 package controllers
 
-import com.rysh.aquahub.shared.SharedMessages
 import javax.inject._
 import domain.Article
 import play.api.mvc._
@@ -12,7 +11,7 @@ class Application @Inject()(cc: ControllerComponents) extends AbstractController
 
   def index = Action {
     implicit val session: AutoSession.type = AutoSession
-    Ok(views.html.index(SharedMessages.itWorks, ArticleRepository.list()))
+    Ok(views.html.index(ArticleRepository.list()))
   }
 
   def article(id: String) = Action {
