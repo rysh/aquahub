@@ -20,62 +20,75 @@ const mysql = require("promise-mysql");
     database: "aquahub",
     connectionLimit: 10
   });
-  const base_url = 'http://www.an-aquarium.com/An/news.html';
-  await page.goto(base_url);
+  const start_url = 'http://www.an-aquarium.com/An/news.html';
+  await page.goto(start_url);
 
-  await page.waitForSelector('div > p + table');
-  var data = await page.evaluate(function() {
-    var doms = document.querySelectorAll("div > p + table")
-    var data = []
-    for(let dom of doms) {
-      
-      var obj = {}
-      obj.body = dom.innerText 
-
-      var body2 = obj.body.replace(/\n/g, '');
-      var body3 = body2.replace(/。.*/g, '');
-      if (body3.length > 100) {
-        body3 = body3.substring(0,100)
-      } 
-      console.log(body3)
-      obj.title = "An aquarium. -" + body3
-
-      if (!!dom.querySelector("img")) {
-        obj.img = dom.querySelector("img").src
-      } else {
-        obj.img = null
-      }
-      data.push(obj)
-    }
-    return data
-  })
-
-  var items = await page.mainFrame().$$("div > p > a")
-  for (  var i = 0;  i < items.length;  i++  ) {
+  var base_urls = [start_url]
+  await page.waitForSelector('div > p > font > a');
+  var old_pages = await page.mainFrame().$$("div > p > font > a")
+  for (let page of old_pages) {
     
-    var anchor = await (await items[i].getProperty('name')).jsonValue();
-    data[i].url = base_url + "#" + anchor
+    var url = await (await page.getProperty('href')).jsonValue();
+    base_urls.push(url);
   }
 
-  for(let item of data) {
-    var hash = createHash(extractAnchor(item.url))
-    // console.log(hash)
-    var result;
-    await pool.query('SELECT id FROM `article` WHERE `article_id` = ?', [hash]).then(function(rows){
-        result = rows
-    });
-    if (result.length != 0) {
-      continue;
+  for (let base_url of base_urls) {
+    if (base_url != start_url) {
+      await page.goto(base_url); 
     }
-    
-    if (item.img != null) {
-        let fileName = createFileName(item, hash)
-        await wget(item.img, {output: fileName}).then(metadata => {
-          upload(fileName)
-        });
+
+    await page.waitForSelector('div > p + table');
+    var data = await page.evaluate(function() {
+      var doms = document.querySelectorAll("div > p + table")
+      var data = []
+      for(let dom of doms) {
+        
+        var obj = {}
+        obj.body = dom.innerText 
+
+        var body2 = obj.body.replace(/\n/g, '');
+        var body3 = body2.replace(/。.*/g, '');
+        if (body3.length > 100) {
+          body3 = body3.substring(0,100)
+        } 
+        obj.title = "An aquarium. -" + body3
+
+        if (!!dom.querySelector("img")) {
+          obj.img = dom.querySelector("img").src
+        } else {
+          obj.img = null
+        }
+        data.push(obj)
+      }
+      return data
+    })
+
+    var items = await page.mainFrame().$$("div > p > a")
+    for (  var i = 0;  i < items.length;  i++  ) {
+      
+      var anchor = await (await items[i].getProperty('name')).jsonValue();
+      data[i].url = base_url + "#" + anchor
     }
-    await save(pool, item, hash);
-    console.log(item)
+
+    for(let item of data) {
+      var hash = createHash(extractAnchor(item.url))
+      var result;
+      await pool.query('SELECT id FROM `article` WHERE `article_id` = ? and force_update = 0', [hash]).then(function(rows){
+          result = rows
+      });
+      if (result.length != 0) {
+        continue;
+      }
+      
+      if (item.img != null) {
+          let fileName = createFileName(item, hash)
+          await wget(item.img, {output: fileName}).then(metadata => {
+            upload(fileName)
+          });
+      }
+      await save(pool, item, hash);
+      console.log(item)
+    }
   }
   await pool.end();
   await browser.close();
@@ -108,16 +121,23 @@ function createImageUrl(item,hash) {
   }
   return 'https://storage.cloud.google.com/aquahub-image/' + createFileName(item, hash)
 }
-function save(pool, item, hash) {
+async function save(pool, item, hash) {
   try {
-    return pool.query("insert into article set ?",{
-      article_id: hash,
-      url: item.url,
-      image_url: createImageUrl(item, hash),
-      title: item.title,
-      body: item.body,
-      force_update: 0
-    }); 
+    await pool.query('SELECT id FROM `article` WHERE `article_id` = ?', [hash]).then(function(rows){
+        result = rows
+    });
+    if (result.length != 0) {
+      return pool.query("update article set url = ?, body= ?, force_update=0 where article_id = ?", [item.url, item.body, hash]); 
+    } else {
+      return pool.query("insert into article set ?",{
+        article_id: hash,
+        url: item.url,
+        image_url: createImageUrl(item, hash),
+        title: item.title,
+        body: item.body,
+        force_update: 0
+      }); 
+    }
   } catch (e) {
     console.log(e)
   }
