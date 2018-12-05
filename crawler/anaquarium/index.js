@@ -99,5 +99,5 @@ exports.crawlAnaquarium = async (req, res) => {
   }
   await pool.end();
   await browser.close();
-  res.send(urls);
+  res.send(base_urls);
 };
