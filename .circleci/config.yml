@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/aquahub/aquahub
+    working_directory: ~/aquahub
     docker:
       - image: openjdk:8
     environment:
@@ -20,14 +20,24 @@ jobs:
                     #pip install awscli
                     #apt-get clean && apt-get autoclean
       - checkout
+      - run:
+          name: move to sbt project dir
+          command: |
+                    cd aquahub
+                    ls
+                    pwd
       - restore_cache:
           key: sbt-cache
       - run:
           name: Compile & Test
-          command: cat /dev/null | sbt clean update test
+          command: |
+                    cd aquahub
+                    cat /dev/null | sbt clean update test
       - run:
           name: dist package
-          command: cat /dev/null | sbt docker:publishLocal
+          command: |
+                    cd aquahub
+                    cat /dev/null | sbt docker:publishLocal
       - store_artifacts:
           path: aquahub/aquahub/server/target/universal/server-0.1.0-SNAPSHOT.zip
           destination: server-0.1.0-SNAPSHOT
