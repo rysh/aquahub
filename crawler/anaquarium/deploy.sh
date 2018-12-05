@@ -1,4 +1,5 @@
 #!/bin/bash
+cp ../utils.js ./
 cp ~/src/aquahub-private/crawler_env.yml ./
 gcloud beta functions deploy crawlAnaquarium \
   --trigger-http \

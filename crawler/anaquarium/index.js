@@ -9,6 +9,7 @@ const crypto = require("crypto");
 var wget = require('node-wget-promise');
 const { Storage } = require('@google-cloud/storage');
 const mysql = require("promise-mysql");
+var utils = require('./utils.js');
 
 exports.crawlAnaquarium = async (req, res) => {
   const browser = await puppeteer.launch({
@@ -26,96 +27,77 @@ exports.crawlAnaquarium = async (req, res) => {
     database: "aquahub",
     connectionLimit: 10
   });
+  const start_url = 'http://www.an-aquarium.com/An/news.html';
+  await page.goto(start_url);
 
-  await page.goto('http://aquaforest.tokyo/blog-2/');
-
-  await page.waitForSelector('div.excerpt_div > h4 > a');
-  var items = await page.mainFrame().$$("div.excerpt_div > h4 > a")
-  var urls = []
-  for(let item of items) {
-
-    var url = await (await item.getProperty('href')).jsonValue();
-    urls.push(url)
-  }
-  urls.sort();
-
-  
-  console.log(urls)
-  for(let url of urls) {
-    var hash = createHash(url)
-    var result;
-    await pool.query('SELECT id FROM `article` WHERE `article_id` = ?', [hash]).then(function(rows){
-        result = rows
-    });
-    if (result.length != 0) {
-      continue;
-    }
-
-    await page.goto(url);
-    await page.waitForSelector('div.entry-content');
+  var base_urls = [start_url]
+  await page.waitForSelector('div > p > font > a');
+  var old_pages = await page.mainFrame().$$("div > p > font > a")
+  for (let page of old_pages) {
     
-    var item = await page.evaluate(function() {
+    var url = await (await page.getProperty('href')).jsonValue();
+    base_urls.push(url);
+  }
 
-      var imgTag = document.querySelector("div.entry-content img")
-      var src = null;
-      if (imgTag != null) {
-        src = imgTag.src
-      }
-      return {
-          title: document.querySelector("title").innerText,
-          body: document.querySelector("div.entry-content").innerText,
-          img: src
-        };
-    })
-    if (item.img != null) {
-        let fileName = createFileName(item, hash)
-        await wget(item.img, {output: "/tmp/" + fileName}).then(metadata => {
-          upload(fileName)
-        });
+  for (let base_url of base_urls) {
+    if (base_url != start_url) {
+      await page.goto(base_url); 
     }
-    await save(pool, item, url, hash);
-    console.log(item)
+
+    await page.waitForSelector('div > p + table');
+    var data = await page.evaluate(function() {
+      var doms = document.querySelectorAll("div > p + table")
+      var data = []
+      for(let dom of doms) {
+        
+        var obj = {}
+        obj.body = dom.innerText 
+
+        var body2 = obj.body.replace(/\n/g, '');
+        var body3 = body2.replace(/。.*/g, '');
+        if (body3.length > 100) {
+          body3 = body3.substring(0,100)
+        } 
+        obj.title = "An aquarium. -" + body3
+
+        if (!!dom.querySelector("img")) {
+          obj.img = dom.querySelector("img").src
+        } else {
+          obj.img = null
+        }
+        data.push(obj)
+      }
+      return data
+    })
+
+    var items = await page.mainFrame().$$("div > p > a")
+    for (  var i = 0;  i < items.length;  i++  ) {
+      
+      var anchor = await (await items[i].getProperty('name')).jsonValue();
+      data[i].url = base_url + "#" + anchor
+    }
+
+    for(let item of data) {
+      var hash = utils.createHash(utils.extractAnchor(item.url))
+      var result;
+      await pool.query('SELECT id FROM `article` WHERE `article_id` = ? and force_update = 0', [hash]).then(function(rows){
+          result = rows
+      });
+      if (result.length != 0) {
+        continue;
+      }
+      
+      if (item.img != null) {
+          let fileName = utils.createFileName(item, hash)
+          await wget(item.img, {output: fileName}).then(metadata => {
+            utils.upload(fileName)
+          });
+      }
+      await utils.save(pool, item, hash);
+      console.log(item)
+    }
   }
   await pool.end();
   await browser.close();
   res.send(urls);
 };
-
-function createHash(url) {
-  var sha256 = crypto.createHash('sha256');
-  sha256.update(url)
-  return sha256.digest('hex');
-}
-function createFileName(item, hash) {
-  let result = item.img.match(/([^\/.]+)/g);
-  return hash + "." + result[result.length - 1]
-}
-function upload(file) {
-  const storage = new Storage();
-  storage.bucket("aquahub-image").upload("/tmp/" + file, {
-    gzip: true,
-    metadata: {
-      cacheControl: 'public, max-age=31536000',
-    },
-  });
-}
-function createImageUrl(item,hash) {
-  if (item.img == null) {
-    return null;
-  }
-  return 'https://storage.cloud.google.com/aquahub-image/' + createFileName(item, hash)
-}
-function save(pool, item, url, hash) {
-  try {
-    return pool.query("insert into article set ?",{
-      article_id: hash,
-      url: url,
-      image_url: createImageUrl(item, hash),
-      title: item.title,
-      body: item.body,
-      force_update: 0
-    }); 
-  } catch (e) {
-    console.log(e)
-  }
-}
