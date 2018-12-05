@@ -23,8 +23,11 @@ jobs:
       - run:
           name: move to sbt project dir
           command: |
-                    cd aquahub/aquahub
                     pwd
+                    ls
+                    cd aquahub
+                    pwd
+                    ls
       - restore_cache:
           key: sbt-cache
       - run:
