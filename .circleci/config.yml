@@ -5,7 +5,7 @@ jobs:
     docker:
       - image: openjdk:8
     environment:
-      SBT_VERSION: 1.0.4
+      SBT_VERSION: 1.1.2
     steps:
       - run: echo 'export ARTIFACT_BUILD=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BUILD_NUM.zip' >> $BASH_ENV
       - run:
@@ -27,7 +27,7 @@ jobs:
           key: sbt-cache
       - run:
           name: Compile server-0.1.0-SNAPSHOT dist package
-          command: cat /dev/null | sbt clean update dist
+          command: cat /dev/null | sbt clean update test
       - store_artifacts:
           path: server/target/universal/server-0.1.0-SNAPSHOT.zip
           destination: server-0.1.0-SNAPSHOT
@@ -39,5 +39,5 @@ jobs:
             - "~/.m2"
       - deploy:
           command: |
-              mv server/target/universal/server-0.1.0-SNAPSHOT.zip $CIRCLE_ARTIFACTS/$ARTIFACT_BUILD
+              #mv server/target/universal/server-0.1.0-SNAPSHOT.zip $CIRCLE_ARTIFACTS/$ARTIFACT_BUILD
               #aws s3 cp $CIRCLE_ARTIFACTS/$ARTIFACT_BUILD s3://samplescala.blogs/builds/ --metadata {\"git_sha1\":\"$CIRCLE_SHA1\"}
