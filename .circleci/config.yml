@@ -29,7 +29,7 @@ jobs:
           name: Compile server-0.1.0-SNAPSHOT dist package
           command: cat /dev/null | sbt clean update test
       - store_artifacts:
-          path: server/target/universal/server-0.1.0-SNAPSHOT.zip
+          path: aquahub/aquahub/server/target/universal/server-0.1.0-SNAPSHOT.zip
           destination: server-0.1.0-SNAPSHOT
       - save_cache:
           key: sbt-cache
