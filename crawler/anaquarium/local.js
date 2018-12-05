@@ -3,6 +3,7 @@ const crypto = require("crypto");
 var wget = require('node-wget-promise');
 const { Storage } = require('@google-cloud/storage');
 const mysql = require("promise-mysql");
+var utils = require('../utils.js');
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -71,7 +72,7 @@ const mysql = require("promise-mysql");
     }
 
     for(let item of data) {
-      var hash = createHash(extractAnchor(item.url))
+      var hash = utils.createHash(utils.extractAnchor(item.url))
       var result;
       await pool.query('SELECT id FROM `article` WHERE `article_id` = ? and force_update = 0', [hash]).then(function(rows){
           result = rows
@@ -81,64 +82,15 @@ const mysql = require("promise-mysql");
       }
       
       if (item.img != null) {
-          let fileName = createFileName(item, hash)
+          let fileName = utils.createFileName(item, hash)
           await wget(item.img, {output: fileName}).then(metadata => {
-            upload(fileName)
+            utils.upload(fileName)
           });
       }
-      await save(pool, item, hash);
+      await utils.save(pool, item, hash);
       console.log(item)
     }
   }
   await pool.end();
   await browser.close();
 })();
-function createHash(url) {
-  var sha256 = crypto.createHash('sha256');
-  sha256.update(url)
-  return sha256.digest('hex');
-}
-function extractAnchor(url) {
-  let result = url.match(/([^\/#]+)/g);
-  return "#" + result[result.length - 1]
-}
-function createFileName(item, hash) {
-  let result = item.img.match(/([^\/.]+)/g);
-  return hash + "." + result[result.length - 1]
-}
-function upload(file) {
-  const storage = new Storage();
-  storage.bucket("aquahub-image").upload(file, {
-    gzip: true,
-    metadata: {
-      cacheControl: 'public, max-age=31536000',
-    },
-  });
-}
-function createImageUrl(item,hash) {
-  if (item.img == null) {
-    return null;
-  }
-  return 'https://storage.cloud.google.com/aquahub-image/' + createFileName(item, hash)
-}
-async function save(pool, item, hash) {
-  try {
-    await pool.query('SELECT id FROM `article` WHERE `article_id` = ?', [hash]).then(function(rows){
-        result = rows
-    });
-    if (result.length != 0) {
-      return pool.query("update article set url = ?, body= ?, force_update=0 where article_id = ?", [item.url, item.body, hash]); 
-    } else {
-      return pool.query("insert into article set ?",{
-        article_id: hash,
-        url: item.url,
-        image_url: createImageUrl(item, hash),
-        title: item.title,
-        body: item.body,
-        force_update: 0
-      }); 
-    }
-  } catch (e) {
-    console.log(e)
-  }
-}
