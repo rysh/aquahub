@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/aquahub/aquahub
+    working_directory: ~/workspace
     docker:
       - image: openjdk:8
     environment:
@@ -20,6 +20,11 @@ jobs:
                     #pip install awscli
                     #apt-get clean && apt-get autoclean
       - checkout
+      - run:
+          name: move to sbt project dir
+          command: |
+                    cd aquahub
+                    pwd
       - restore_cache:
           key: sbt-cache
       - run:
