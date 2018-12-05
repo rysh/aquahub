@@ -80,3 +80,7 @@ typings/
 
 
 crawler_env.yml
+*.png
+*.jpeg
+*.jpg
+*.gif

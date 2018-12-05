@@ -31,7 +31,7 @@ const utils = {
     if (item.img == null) {
       return null;
     }
-    return 'https://storage.cloud.google.com/aquahub-image/' + createFileName(item, hash)
+    return 'https://storage.cloud.google.com/aquahub-image/' + this.createFileName(item, hash)
   },
   save: async function(pool, item, hash) {
     try {
@@ -44,7 +44,7 @@ const utils = {
         return pool.query("insert into article set ?",{
           article_id: hash,
           url: item.url,
-          image_url: createImageUrl(item, hash),
+          image_url: this.createImageUrl(item, hash),
           title: item.title,
           body: item.body,
           force_update: 0
