@@ -3,6 +3,7 @@ import sbtcrossproject.{CrossPlugin, CrossType}
 lazy val server = (project in file("server"))
   .settings(commonSettings)
   .settings(
+    name := "aquahub",
     scalaJSProjects := Seq(client),
     pipelineStages in Assets := Seq(scalaJSPipeline),
     pipelineStages := Seq(digest, gzip),
@@ -16,8 +17,6 @@ lazy val server = (project in file("server"))
       "org.scalikejdbc" %% "scalikejdbc-play-initializer" % "2.6.0-scalikejdbc-3.3",
       "mysql"           % "mysql-connector-java"          % "5.1.47",
       "ch.qos.logback"  % "logback-classic"               % "1.2.3",
-      "org.scalatest"   %% "scalatest"                    % "3.0.5" % Test,
-      "org.scalacheck"  %% "scalacheck"                   % "1.14.0" % Test,
       guice,
       specs2 % Test
     ),
@@ -32,9 +31,7 @@ lazy val client = (project in file("client"))
   .settings(
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
-      "org.scala-js"   %%% "scalajs-dom" % "0.9.6",
-      "org.scalatest"  %% "scalatest"    % "3.0.5" % Test,
-      "org.scalacheck" %% "scalacheck"   % "1.14.0" % Test
+      "org.scala-js" %%% "scalajs-dom" % "0.9.6"
     )
   )
   .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
@@ -50,10 +47,19 @@ lazy val sharedJs  = shared.js
 
 lazy val commonSettings = Seq(
   scalaVersion := "2.12.6",
-  organization := "com.rysh"
+  organization := "com.rysh",
+  version := "0.0.1-SNAPSHOT",
+  libraryDependencies ++= Seq(
+    "org.scalatest"  %% "scalatest"  % "3.0.5"  % Test,
+    "org.scalacheck" %% "scalacheck" % "1.14.0" % Test
+  )
 )
 
 // loads the server project at sbt startup
 onLoad in Global := (onLoad in Global).value andThen { s: State =>
   "project server" :: s
 }
+
+maintainer in Docker := "rysh <rysh.cact@gmail.com>"
+
+dockerExposedPorts in Docker := Seq(9000, 9443)
