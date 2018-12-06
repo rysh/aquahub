@@ -89,8 +89,8 @@ exports.crawlAnaquarium = async (req, res) => {
       
       if (item.img != null) {
           let fileName = utils.createFileName(item, hash)
-          await wget(item.img, {output: fileName}).then(metadata => {
-            utils.upload(fileName)
+          await wget(item.img, {output: "/tmp/" + fileName}).then(metadata => {
+            utils.upload("/tmp/" + fileName)
           });
       }
       await utils.save(pool, item, hash);
