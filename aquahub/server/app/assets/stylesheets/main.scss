@@ -6,3 +6,23 @@ h5 {
 a {
     text-decoration: none;
 }
+.main > div {
+    position: relative;
+    overflow:   hidden;
+}
+
+.main_left {
+    width: 80%;
+    float: left;
+    min-height: 8ex;
+}
+
+.main_right {
+    width: 20%;
+    float: right;
+}
+img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+}

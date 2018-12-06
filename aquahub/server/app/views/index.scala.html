@@ -7,23 +7,24 @@
     <div class="row">
       <div id="main" class="nine columns">
         <span>新着記事</span>
-        <ul style="list-style: none;">
 
         @for(article <- articles) {
-
+          <div>
           @if(article.imageUrl.isDefined) {
 
-            <li><a href="/article/@article.articleId"><div style="width: 80%;">@article.title</div>
-                <img name=list_image style="display:none;" class="u-pull-right" src="@article.imageUrl.get" alt="article.body" title="article.body">
-            </a></li>
+            <a href="/article/@article.articleId">
+              <div class="main_left">@article.title</div>
+              <div class="main_right"><img name=list_image src="@article.imageUrl.get" alt="article.body" title="article.body"></div>
+              <div class="u-cf"></div>
+            </a>
           } else {
 
-            <li><a href="/article/@article.articleId"><div>@article.title</div>
+            <a href="/article/@article.articleId"><div>@article.title</div>
 
-            </a></li>
+            </a>
           }
+          </div>
         }
-        </ul>
       </div>
 
       <div id="side" class="three columns">AD</div>
