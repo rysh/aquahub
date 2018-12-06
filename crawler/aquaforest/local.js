@@ -69,7 +69,7 @@ var utils = require('../utils.js');
           utils.upload(fileName)
         });
     }
-    await utils.save(pool, item, url, hash);
+    await utils.save(pool, item, hash);
     console.log(item)
   }
   await pool.end();

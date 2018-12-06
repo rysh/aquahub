@@ -12,5 +12,8 @@
   "license": "ISC",
   "devDependencies": {
     "mocha": "^5.2.0"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^2.3.1"
   }
 }
