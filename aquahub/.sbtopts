@@ -1,0 +1,17 @@
+# ------------------------------------------------ #
+#  The SBT Configuration file.                     #
+# ------------------------------------------------ #
+
+# Starts sbt even if the current directory contains no sbt project.
+#
+-sbt-create
+
+# Set JVM options instead of JAVA_OPTS/SBT_OPTS
+# Xss2M is specified to escape StackOverflow error
+-J-Xms256M
+-J-Xmx2048M
+-J-Xss2M
+-J-XX:MaxMetaspaceSize=768M
+-J-XX:CompressedClassSpaceSize=128M
+-J-XX:+CMSClassUnloadingEnabled
+-Djava.awt.headless=true
