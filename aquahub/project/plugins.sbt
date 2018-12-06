@@ -22,3 +22,5 @@ addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.15")
 
 libraryDependencies += "mysql" % "mysql-connector-java"  % "5.1.47"
 addSbtPlugin("org.scalikejdbc" %% "scalikejdbc-mapper-generator" % "3.3.1")
+
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.11")
