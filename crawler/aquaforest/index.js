@@ -9,6 +9,7 @@ const crypto = require("crypto");
 var wget = require('node-wget-promise');
 const { Storage } = require('@google-cloud/storage');
 const mysql = require("promise-mysql");
+var utils = require('./utils.js');
 
 exports.crawlAquaforest = async (req, res) => {
   const browser = await puppeteer.launch({
@@ -39,10 +40,8 @@ exports.crawlAquaforest = async (req, res) => {
   }
   urls.sort();
 
-  
-  console.log(urls)
   for(let url of urls) {
-    var hash = createHash(url)
+    var hash = utils.createHash(url)
     var result;
     await pool.query('SELECT id FROM `article` WHERE `article_id` = ?', [hash]).then(function(rows){
         result = rows
@@ -67,55 +66,17 @@ exports.crawlAquaforest = async (req, res) => {
           img: src
         };
     })
+    item.url = url
     if (item.img != null) {
-        let fileName = createFileName(item, hash)
+        let fileName = utils.createFileName(item, hash)
         await wget(item.img, {output: "/tmp/" + fileName}).then(metadata => {
-          upload(fileName)
+          utils.upload(fileName)
         });
     }
-    await save(pool, item, url, hash);
-    console.log(item)
+    await utils.save(pool, item, hash);
   }
   await pool.end();
   await browser.close();
   res.send(urls);
 };
 
-function createHash(url) {
-  var sha256 = crypto.createHash('sha256');
-  sha256.update(url)
-  return sha256.digest('hex');
-}
-function createFileName(item, hash) {
-  let result = item.img.match(/([^\/.]+)/g);
-  return hash + "." + result[result.length - 1]
-}
-function upload(file) {
-  const storage = new Storage();
-  storage.bucket("aquahub-image").upload("/tmp/" + file, {
-    gzip: true,
-    metadata: {
-      cacheControl: 'public, max-age=31536000',
-    },
-  });
-}
-function createImageUrl(item,hash) {
-  if (item.img == null) {
-    return null;
-  }
-  return 'https://storage.cloud.google.com/aquahub-image/' + createFileName(item, hash)
-}
-function save(pool, item, url, hash) {
-  try {
-    return pool.query("insert into article set ?",{
-      article_id: hash,
-      url: url,
-      image_url: createImageUrl(item, hash),
-      title: item.title,
-      body: item.body,
-      force_update: 0
-    }); 
-  } catch (e) {
-    console.log(e)
-  }
-}
