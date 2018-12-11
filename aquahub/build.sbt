@@ -24,7 +24,7 @@ lazy val server = (project in file("server"))
     EclipseKeys.preTasks := Seq(compile in Compile)
   )
   .enablePlugins(PlayScala, ScalikejdbcPlugin)
-  .dependsOn(sharedJvm)
+  .dependsOn(sharedJvm % "test->test")
 
 lazy val client = (project in file("client"))
   .settings(commonSettings)
@@ -35,7 +35,7 @@ lazy val client = (project in file("client"))
     )
   )
   .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
-  .dependsOn(sharedJs)
+  .dependsOn(sharedJs % "test->test")
 
 lazy val shared = CrossPlugin.autoImport
   .crossProject(JSPlatform, JVMPlatform)
@@ -50,8 +50,8 @@ lazy val commonSettings = Seq(
   organization := "com.rysh",
   version := "0.0.1-SNAPSHOT",
   libraryDependencies ++= Seq(
-    "org.scalatest"  %% "scalatest"  % "3.0.5"  % Test,
-    "org.scalacheck" %% "scalacheck" % "1.14.0" % Test
+    "org.scalatest"  %%% "scalatest"  % "3.0.5"  % Test,
+    "org.scalacheck" %%% "scalacheck" % "1.14.0" % Test
   )
 )
 
