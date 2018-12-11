@@ -1,4 +1,3 @@
-import com.rysh.aquahub.shared.SharedMessages
 import org.scalajs.dom.document
 import org.scalajs.dom.raw.{Element, HTMLElement, HTMLImageElement}
 
